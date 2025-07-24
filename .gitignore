@@ -33,3 +33,9 @@ test/bin/
 
 # macOS
 .DS_Store
+
+# Configuration files (avoid pushing sensitive configs)
+frps.ini
+frpc.ini
+*.ini
+!conf/*.ini
