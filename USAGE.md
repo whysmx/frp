@@ -12,7 +12,7 @@ make
 
 ### 2. 服务端配置 (frps)
 
-创建 `frps.ini` 配置文件：
+创建 `frps.ini` 配置文件（此文件不会被推送到 Git）：
 
 ```ini
 [common]
@@ -21,6 +21,8 @@ dashboard_port = 7500
 dashboard_user = admin
 dashboard_pwd = admin
 ```
+
+> 💡 **提示**: 配置文件已添加到 .gitignore 中，不会被推送到仓库，保护你的敏感信息。
 
 启动服务端：
 
