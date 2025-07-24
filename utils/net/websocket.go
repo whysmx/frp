@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/fatedier/frp/utils/log"
+	"github.com/whysmx/frp/utils/log"
 
 	"golang.org/x/net/websocket"
 )

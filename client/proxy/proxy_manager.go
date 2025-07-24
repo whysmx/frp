@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/fatedier/frp/client/event"
-	"github.com/fatedier/frp/models/config"
-	"github.com/fatedier/frp/models/msg"
-	"github.com/fatedier/frp/utils/log"
-	frpNet "github.com/fatedier/frp/utils/net"
+	"github.com/whysmx/frp/client/event"
+	"github.com/whysmx/frp/models/config"
+	"github.com/whysmx/frp/models/msg"
+	"github.com/whysmx/frp/utils/log"
+	frpNet "github.com/whysmx/frp/utils/net"
 
 	"github.com/fatedier/golib/errors"
 )

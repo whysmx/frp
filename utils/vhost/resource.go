@@ -19,8 +19,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	frpLog "github.com/fatedier/frp/utils/log"
-	"github.com/fatedier/frp/utils/version"
+	frpLog "github.com/whysmx/frp/utils/log"
+	"github.com/whysmx/frp/utils/version"
 )
 
 var (
@@ -44,7 +44,7 @@ const (
 <h1>The page you visit not found.</h1>
 <p>Sorry, the page you are looking for is currently unavailable.<br/>
 Please try again later.</p>
-<p>The server is powered by <a href="https://github.com/fatedier/frp">frp</a>.</p>
+<p>The server is powered by <a href="https://github.com/whysmx/frp">frp</a>.</p>
 <p><em>Faithfully yours, frp.</em></p>
 </body>
 </html>

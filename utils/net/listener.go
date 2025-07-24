@@ -19,7 +19,7 @@ import (
 	"net"
 	"sync"
 
-	"github.com/fatedier/frp/utils/log"
+	"github.com/whysmx/frp/utils/log"
 
 	"github.com/fatedier/golib/errors"
 )

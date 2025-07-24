@@ -17,9 +17,9 @@ package proxy
 import (
 	"fmt"
 
-	"github.com/fatedier/frp/g"
-	"github.com/fatedier/frp/models/config"
-	frpNet "github.com/fatedier/frp/utils/net"
+	"github.com/whysmx/frp/g"
+	"github.com/whysmx/frp/models/config"
+	frpNet "github.com/whysmx/frp/utils/net"
 )
 
 type TcpProxy struct {
