@@ -1,0 +1,327 @@
+/* Global CSS utilities for Site Management */
+
+/* Common transitions */
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.3s;
+}
+.fade-enter, .fade-leave-to {
+    opacity: 0;
+}
+
+/* Loading states */
+.loading-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    color: #909399;
+}
+
+/* Empty states */
+.empty-state-common {
+    text-align: center;
+    padding: 60px 20px;
+    color: #909399;
+}
+
+.empty-state-common .empty-icon {
+    font-size: 64px;
+    color: #C0C4CC;
+    margin-bottom: 20px;
+}
+
+.empty-state-common .empty-text {
+    font-size: 16px;
+    margin: 0 0 8px 0;
+}
+
+.empty-state-common .empty-hint {
+    font-size: 14px;
+    color: #C0C4CC;
+    margin: 0;
+}
+
+/* Form utilities */
+.form-section {
+    margin-bottom: 24px;
+}
+
+.form-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #303133;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #E4E7ED;
+}
+
+.field-hint {
+    font-size: 12px;
+    color: #909399;
+    margin-top: 5px;
+    line-height: 1.4;
+}
+
+/* Button groups */
+.button-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.button-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Status indicators */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+}
+
+.status-online {
+    color: #67C23A;
+}
+
+.status-offline {
+    color: #F56C6C;
+}
+
+.status-unknown {
+    color: #909399;
+}
+
+/* Data display */
+.data-label {
+    font-weight: 500;
+    color: #606266;
+    margin-right: 8px;
+}
+
+.data-value {
+    color: #303133;
+}
+
+.data-value-mono {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    color: #606266;
+}
+
+/* Card utilities */
+.card-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header-title {
+    font-weight: 600;
+    color: #303133;
+}
+
+.card-header-extra {
+    color: #909399;
+    font-size: 13px;
+}
+
+/* Table utilities */
+.table-actions {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.table-actions .el-button {
+    margin: 0;
+    padding: 4px 8px;
+}
+
+/* Dialog utilities */
+.dialog-section {
+    margin-bottom: 20px;
+}
+
+.dialog-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #303133;
+    margin-bottom: 12px;
+}
+
+/* Spacing utilities */
+.mb-xs { margin-bottom: 8px; }
+.mb-sm { margin-bottom: 12px; }
+.mb-md { margin-bottom: 16px; }
+.mb-lg { margin-bottom: 24px; }
+.mb-xl { margin-bottom: 32px; }
+
+.mt-xs { margin-top: 8px; }
+.mt-sm { margin-top: 12px; }
+.mt-md { margin-top: 16px; }
+.mt-lg { margin-top: 24px; }
+.mt-xl { margin-top: 32px; }
+
+.p-xs { padding: 8px; }
+.p-sm { padding: 12px; }
+.p-md { padding: 16px; }
+.p-lg { padding: 24px; }
+.p-xl { padding: 32px; }
+
+/* Text utilities */
+.text-primary { color: #409EFF; }
+.text-success { color: #67C23A; }
+.text-warning { color: #E6A23C; }
+.text-danger { color: #F56C6C; }
+.text-info { color: #909399; }
+.text-muted { color: #C0C4CC; }
+
+.text-xs { font-size: 11px; }
+.text-sm { font-size: 12px; }
+.text-md { font-size: 14px; }
+.text-lg { font-size: 16px; }
+.text-xl { font-size: 18px; }
+
+.font-mono {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.font-weight-normal { font-weight: normal; }
+.font-weight-medium { font-weight: 500; }
+.font-weight-semibold { font-weight: 600; }
+.font-weight-bold { font-weight: bold; }
+
+/* Flex utilities */
+.d-flex { display: flex; }
+.d-inline-flex { display: inline-flex; }
+.flex-column { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.justify-start { justify-content: flex-start; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.justify-between { justify-content: space-between; }
+.align-start { align-items: flex-start; }
+.align-center { align-items: center; }
+.align-end { align-items: flex-end; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-nowrap { flex-wrap: nowrap; }
+.flex-1 { flex: 1; }
+
+/* Width utilities */
+.w-full { width: 100%; }
+.w-auto { width: auto; }
+
+/* Animation utilities */
+.rotate {
+    animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Hover effects */
+.hover-shadow {
+    transition: box-shadow 0.3s ease;
+}
+
+.hover-shadow:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.hover-scale {
+    transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+    transform: scale(1.02);
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+    .mobile-hidden { display: none !important; }
+    .mobile-full-width { width: 100% !important; }
+    .mobile-text-center { text-align: center !important; }
+    .mobile-flex-column { flex-direction: column !important; }
+    .mobile-no-gap { gap: 0 !important; }
+}
+
+@media (min-width: 769px) {
+    .desktop-hidden { display: none !important; }
+}
+
+/* Element UI overrides for consistency */
+.el-button--mini {
+    font-size: 11px;
+    padding: 4px 8px;
+}
+
+.el-tag--mini {
+    font-size: 10px;
+    padding: 1px 4px;
+}
+
+.el-card {
+    border-radius: 6px;
+}
+
+.el-dialog {
+    border-radius: 8px;
+}
+
+.el-table {
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .print-break-after {
+        page-break-after: always;
+    }
+    
+    .print-break-before {
+        page-break-before: always;
+    }
+}

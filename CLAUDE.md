@@ -10,6 +10,9 @@ This is frp (Fast Reverse Proxy) - a Go-based reverse proxy tool that helps expo
 
 ### Core Build Commands
 ```bash
+# Build all components (equivalent to make fmt build)
+make all
+
 # Build both server and client binaries
 make build
 
@@ -34,6 +37,9 @@ make ci
 
 # Run all tests
 make alltest
+
+# Run unit tests with coverage (equivalent to make gotest)
+make test
 ```
 
 ### Web Assets (if working with dashboard)
