@@ -109,7 +109,7 @@ interface SiteContextType {
     setSearchTerm: (term: string) => void
     setSelectedTags: (tags: string[]) => void
     addSite: (site: Site) => Promise<void>
-    updateSite: (macAddress: string, updates: Partial<Site>) => Promise<void>
+    updateSite: (macAddress: string, updates: Partial<Site>, silent?: boolean) => Promise<void>
     deleteSite: (macAddress: string) => Promise<void>
     importSites: (sites: Site[]) => Promise<{ success: number; errors: string[] }>
     refreshData: () => Promise<void>
@@ -227,11 +227,13 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       }
     },
 
-    async updateSite(macAddress: string, updates: Partial<Site>) {
+    async updateSite(macAddress: string, updates: Partial<Site>, silent: boolean = false) {
       try {
         stcpManager.updateSite(macAddress, updates)
         dispatch({ type: 'UPDATE_SITE', payload: { macAddress, updates } })
-        toast.success('站点更新成功')
+        if (!silent) {
+          toast.success('站点更新成功')
+        }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : '更新站点失败'
         toast.error(errorMessage)
@@ -269,7 +271,7 @@ export function SiteProvider({ children }: { children: ReactNode }) {
         
         return result
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : '批量导入失败'
+        const errorMessage = error instanceof Error ? error.message : '导入失败'
         toast.error(errorMessage)
         throw error
       }

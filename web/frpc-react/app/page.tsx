@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { FileText, Plus, Loader2, RefreshCw } from "lucide-react"
 import { SiteFilters } from "@/components/site-filters"
 import { SiteTable } from "@/components/site-table"
 import { ProxyConfig } from "@/components/proxy-config"
@@ -38,7 +37,8 @@ export default function FrpcSiteManagement() {
 
   const handleSiteFieldChange = async (macAddress: string, field: keyof Site, value: string | string[]) => {
     try {
-      await actions.updateSite(macAddress, { [field]: value })
+      // 字段更改时静默更新，不显示成功提示
+      await actions.updateSite(macAddress, { [field]: value }, true)
     } catch (error) {
       console.error('Failed to update site:', error)
     }
@@ -84,6 +84,7 @@ export default function FrpcSiteManagement() {
 
   const handleSaveProxyConfig = async (site: Site, configs: Proxy[]) => {
     try {
+      // 端口配置保存时显示成功提示
       await actions.updateSite(site.macAddress, { configs })
       setShowProxyConfig({ ...site, configs })
     } catch (error) {
@@ -96,7 +97,8 @@ export default function FrpcSiteManagement() {
       const site = sites.find(s => s.macAddress === macAddress)
       if (site && !site.tags.includes(newTag.trim())) {
         try {
-          await actions.updateSite(macAddress, { tags: [...site.tags, newTag.trim()] })
+          // 添加标签时静默更新，不显示成功提示
+          await actions.updateSite(macAddress, { tags: [...site.tags, newTag.trim()] }, true)
         } catch (error) {
           console.error('Failed to add tag:', error)
         }
@@ -116,15 +118,11 @@ export default function FrpcSiteManagement() {
   // 显示错误状态
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-100 p-4">
-        <div className="w-full space-y-8">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+        <div className="max-w-[90rem] mx-auto space-y-8">
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold text-red-600 mb-4">连接失败</h2>
             <p className="text-gray-600 mb-6">{error}</p>
-            <Button onClick={() => actions.refreshData()} className="button-primary">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              重试连接
-            </Button>
           </div>
         </div>
       </div>
@@ -132,79 +130,8 @@ export default function FrpcSiteManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-100 p-4">
-      <div className="w-full space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="title-1">站点管理</h1>
-            {loading && (
-              <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
-            )}
-            {lastSyncTime && (
-              <span className="text-sm text-gray-500">
-                最后更新: {lastSyncTime.toLocaleTimeString()}
-              </span>
-            )}
-          </div>
-          <div className="flex gap-3">
-            {!editMode ? (
-              <>
-                <Button 
-                  variant="outline"
-                  onClick={() => actions.refreshData()} 
-                  disabled={loading}
-                  className="border-slate-200 text-slate-600 bg-white/90 hover:bg-white hover:shadow-lg rounded-2xl px-6 py-3 animated-element backdrop-blur-sm"
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  刷新
-                </Button>
-                <Button 
-                  onClick={() => actions.setEditMode(true)} 
-                  className="button-primary animated-element font-semibold"
-                  disabled={loading}
-                >
-                  编辑
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowBatchImport(true)}
-                  className="border-slate-200 text-slate-600 bg-white/90 hover:bg-white hover:shadow-lg rounded-2xl px-6 py-3 animated-element backdrop-blur-sm"
-                  disabled={loading}
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  批量导入
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowConfigEditor(true)}
-                  className="border-slate-200 text-slate-600 bg-white/90 hover:bg-white hover:shadow-lg rounded-2xl px-6 py-3 animated-element backdrop-blur-sm"
-                  disabled={loading}
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  配置文件
-                </Button>
-                <Button 
-                  onClick={handleSaveChanges} 
-                  className="button-primary animated-element font-semibold"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      保存中...
-                    </>
-                  ) : (
-                    '保存完成'
-                  )}
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+      <div className="max-w-[90rem] mx-auto space-y-8">
 
         {/* Search and Filter */}
         <SiteFilters
@@ -216,6 +143,12 @@ export default function FrpcSiteManagement() {
           showTagFilter={showTagFilter}
           setShowTagFilter={setShowTagFilter}
           filteredSites={filteredSites}
+          editMode={editMode}
+          loading={loading}
+          onEditModeChange={actions.setEditMode}
+          onSaveChanges={handleSaveChanges}
+          onShowBatchImport={() => setShowBatchImport(true)}
+          onShowConfigEditor={() => setShowConfigEditor(true)}
         />
 
         {/* Proxy Configuration Panel */}
@@ -223,6 +156,7 @@ export default function FrpcSiteManagement() {
           showProxyConfig={showProxyConfig}
           setShowProxyConfig={setShowProxyConfig}
           onSave={handleSaveProxyConfig}
+          allSites={sites}
         />
 
         {/* Sites Table */}

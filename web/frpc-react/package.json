@@ -1,7 +1,7 @@
 {
   "name": "frpc-react",
   "version": "1.0.0",
-  "description": "FRP站点管理系统 - React版本",
+  "description": "FRP站点远程管理系统 - React版本",
   "private": true,
   "scripts": {
     "build": "next build",

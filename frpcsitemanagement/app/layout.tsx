@@ -5,7 +5,7 @@ import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "站点管理系统",
+  title: "站点远程管理",
   description: "FRPC站点管理系统",
   generator: "v0.dev",
 }

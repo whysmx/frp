@@ -10,93 +10,97 @@
 
 @layer base {
   :root {
-    --background: 248 250 252;
-    --foreground: 15 23 42;
-    --card: 255 255 255;
-    --card-foreground: 15 23 42;
-    --popover: 255 255 255;
-    --popover-foreground: 15 23 42;
-    --primary: 59 130 246;
-    --primary-foreground: 255 255 255;
-    --secondary: 241 245 249;
-    --secondary-foreground: 51 65 85;
-    --muted: 248 250 252;
-    --muted-foreground: 100 116 139;
-    --accent: 239 246 255;
-    --accent-foreground: 59 130 246;
-    --destructive: 239 68 68;
-    --destructive-foreground: 255 255 255;
-    --border: 226 232 240;
-    --input: 241 245 249;
-    --ring: 59 130 246;
-    --chart-1: 59 130 246;
-    --chart-2: 16 185 129;
-    --chart-3: 245 158 11;
-    --chart-4: 239 68 68;
-    --chart-5: 139 92 246;
+    /* 苹果风格色彩系统 - HSL格式 */
+    --background: 0 0% 100%;
+    --foreground: 220 3% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 3% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 3% 11%;
+    
+    /* 苹果系统蓝 #007AFF */
+    --primary: 214 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* 苹果中性灰系统 */
+    --secondary: 240 3% 95%;
+    --secondary-foreground: 220 5% 24%;
+    --muted: 0 0% 97%;
+    --muted-foreground: 220 5% 24%;
+    --accent: 240 3% 95%;
+    --accent-foreground: 220 3% 11%;
+    
+    /* 苹果系统色彩 */
+    --destructive: 4 90% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 140 71% 49%;
+    --success-foreground: 0 0% 100%;
+    --warning: 32 100% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --border: 240 6% 84%;
+    --input: 240 3% 95%;
+    --ring: 214 100% 50%;
+    
+    /* 图表色彩 - 苹果风格 */
+    --chart-1: 214 100% 50%;
+    --chart-2: 140 71% 49%;
+    --chart-3: 32 100% 50%;
+    --chart-4: 4 90% 58%;
+    --chart-5: 280 60% 60%;
+    
+    /* 苹果推荐圆角 */
     --radius: 0.75rem;
-    --sidebar-background: 255 255 255;
-    --sidebar-foreground: 51 65 85;
-    --sidebar-primary: 59 130 246;
-    --sidebar-primary-foreground: 255 255 255;
-    --sidebar-accent: 239 246 255;
-    --sidebar-accent-foreground: 59 130 246;
-    --sidebar-border: 226 232 240;
-    --sidebar-ring: 59 130 246;
+    
+    /* 侧边栏配色 */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 5% 24%;
+    --sidebar-primary: 214 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3% 95%;
+    --sidebar-accent-foreground: 214 100% 50%;
+    --sidebar-border: 240 6% 84%;
+    --sidebar-ring: 214 100% 50%;
   }
 
-  /* 强制浅色模式，避免系统自动深色模式影响 */
-  html {
-    color-scheme: light only;
-    /* 禁用浏览器自动颜色调整 */
-    -webkit-color-scheme: light only;
-    -moz-color-scheme: light only;
-    /* 禁用系统级颜色过滤器 */
-    filter: none !important;
-  }
-  
-  /* 防止任何自动色彩调整 */
-  *, *::before, *::after {
-    color-scheme: light only;
-    -webkit-color-scheme: light only;
-    -moz-color-scheme: light only;
-    filter: none !important;
-  }
-
-  /* 即使在深色模式下也保持浅色主题 */
+  /* 深色模式保持浅色主题（如果需要） */
   .dark {
-    --background: 248 250 252;
-    --foreground: 15 23 42;
-    --card: 255 255 255;
-    --card-foreground: 15 23 42;
-    --popover: 255 255 255;
-    --popover-foreground: 15 23 42;
-    --primary: 59 130 246;
-    --primary-foreground: 255 255 255;
-    --secondary: 241 245 249;
-    --secondary-foreground: 51 65 85;
-    --muted: 248 250 252;
-    --muted-foreground: 100 116 139;
-    --accent: 239 246 255;
-    --accent-foreground: 59 130 246;
-    --destructive: 239 68 68;
-    --destructive-foreground: 255 255 255;
-    --border: 226 232 240;
-    --input: 241 245 249;
-    --ring: 59 130 246;
-    --chart-1: 59 130 246;
-    --chart-2: 16 185 129;
-    --chart-3: 245 158 11;
-    --chart-4: 239 68 68;
-    --chart-5: 139 92 246;
-    --sidebar-background: 255 255 255;
-    --sidebar-foreground: 51 65 85;
-    --sidebar-primary: 59 130 246;
-    --sidebar-primary-foreground: 255 255 255;
-    --sidebar-accent: 239 246 255;
-    --sidebar-accent-foreground: 59 130 246;
-    --sidebar-border: 226 232 240;
-    --sidebar-ring: 59 130 246;
+    --background: 0 0% 100%;
+    --foreground: 220 3% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 3% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 3% 11%;
+    --primary: 214 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 3% 95%;
+    --secondary-foreground: 220 5% 24%;
+    --muted: 0 0% 97%;
+    --muted-foreground: 220 5% 24%;
+    --accent: 240 3% 95%;
+    --accent-foreground: 220 3% 11%;
+    --destructive: 4 90% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 140 71% 49%;
+    --success-foreground: 0 0% 100%;
+    --warning: 32 100% 50%;
+    --warning-foreground: 0 0% 100%;
+    --border: 240 6% 84%;
+    --input: 240 3% 95%;
+    --ring: 214 100% 50%;
+    --chart-1: 214 100% 50%;
+    --chart-2: 140 71% 49%;
+    --chart-3: 32 100% 50%;
+    --chart-4: 4 90% 58%;
+    --chart-5: 280 60% 60%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 5% 24%;
+    --sidebar-primary: 214 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3% 95%;
+    --sidebar-accent-foreground: 214 100% 50%;
+    --sidebar-border: 240 6% 84%;
+    --sidebar-ring: 214 100% 50%;
   }
 }
 
@@ -104,45 +108,67 @@
   * {
     @apply border-border;
   }
+  
   body {
-    @apply bg-gradient-to-br from-slate-50 to-blue-100 text-foreground min-h-screen;
-    /* 强制覆盖任何系统颜色调整 */
-    background: linear-gradient(to bottom right, rgb(248 250 252), rgb(219 234 254)) !important;
+    @apply bg-gradient-to-br from-gray-50 to-gray-100 text-foreground min-h-screen;
+    /* 苹果风格背景渐变 */
+    background: linear-gradient(to bottom right, rgb(248 248 248), rgb(242 242 247));
+  }
+  
+  /* 优化选择高亮效果 */
+  ::selection {
+    background: rgb(0 122 255 / 0.2);
+    color: rgb(28 28 30);
+  }
+  
+  ::-moz-selection {
+    background: rgb(0 122 255 / 0.2);
+    color: rgb(28 28 30);
   }
 }
 
 @layer components {
   .glass-effect {
     @apply bg-white/90 backdrop-blur-xl border border-white/30 shadow-xl shadow-slate-500/10;
-    /* 确保背景色不受系统影响 */
-    background-color: rgba(255, 255, 255, 0.9) !important;
   }
 
   .button-primary {
-    @apply bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 rounded-2xl px-6 py-3 font-medium shadow-lg shadow-blue-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-105;
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground border-0 rounded-2xl px-6 py-4 font-medium shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98];
   }
 
   .title-1 {
-    @apply text-4xl font-bold bg-gradient-to-r from-slate-800 to-blue-800 bg-clip-text text-transparent;
+    @apply text-4xl font-bold text-foreground;
   }
 
   .title-2 {
-    @apply text-2xl font-bold text-slate-800;
+    @apply text-2xl font-bold text-foreground;
   }
 
   .title-3 {
-    @apply text-xl font-semibold text-slate-800;
+    @apply text-xl font-semibold text-foreground;
   }
 
   .caption {
-    @apply text-sm text-slate-500;
+    @apply text-sm text-muted-foreground;
   }
 
   .animated-element {
-    @apply transition-all duration-200 ease-out;
+    @apply transition-all duration-300 ease-out;
   }
 
   .card-hover {
-    @apply hover:shadow-2xl hover:shadow-slate-500/15 hover:-translate-y-1;
+    @apply hover:shadow-2xl hover:shadow-black/10 hover:-translate-y-0.5;
+  }
+  
+  /* 苹果风格按钮基础样式 */
+  .apple-button {
+    @apply rounded-2xl px-6 py-4 font-medium transition-all duration-300 ease-out;
+    @apply active:scale-95 hover:scale-[1.02];
+  }
+  
+  /* 苹果风格输入框 */
+  .apple-input {
+    @apply rounded-xl border border-border bg-input px-4 py-3 transition-all duration-300;
+    @apply focus:ring-2 focus:ring-primary/20 focus:border-primary;
   }
 }

@@ -109,3 +109,30 @@ This repository contains sample configuration files with default tokens. When de
 
 ### Dashboard Development
 The web dashboard source is in `web/frps/` and `web/frpc/` directories. Use `make file` to compile web assets into Go binaries after making changes.
+
+## Frontend Development Rules (web/frpc-react/)
+
+### CSS Variables and Tailwind CSS Configuration
+
+**CRITICAL: CSS变量格式规则**
+- Tailwind CSS配置文件 (`tailwind.config.ts`) 期望HSL格式：`hsl(var(--variable-name))`
+- CSS变量 (`app/globals.css`) 必须使用HSL格式：`--variable-name: H S% L%`
+- **错误示例**: `--border: 209 209 214` (RGB格式)
+- **正确示例**: `--border: 240 6% 84%` (HSL格式)
+
+**常见问题排查**:
+- 如果UI组件显示浏览器默认颜色（如黄色边框），检查CSS变量格式是否正确
+- 所有颜色变量必须在 `:root` 和 `.dark` 中都定义
+- 使用在线工具将RGB转HSL：rgb(209,209,214) → hsl(240,6%,84%)
+
+**配色方案**:
+- 使用苹果设计系统配色
+- 主色：`--primary: 214 100% 50%` (苹果系统蓝 #007AFF)
+- 边框：`--border: 240 6% 84%` (浅灰 #D1D1D6)  
+- 背景：`--background: 0 0% 100%` (纯白)
+
+### 样式调试步骤
+1. 检查 `tailwind.config.ts` 中颜色变量定义
+2. 检查 `app/globals.css` 中CSS变量格式
+3. 确认所有变量都有对应的HSL值
+4. 使用浏览器开发者工具验证computed样式

@@ -177,7 +177,7 @@ export class INIParser {
 
   /**
    * 解析设备注册表条目
-   * 格式: "MAC地址|站点编号|站点名称|密码|标签1;标签2"
+   * 格式: "MAC地址|站点编号|站点名称|密码|标签1,标签2"
    */
   private static parseDeviceEntry(deviceLine: string): Device | null {
     const parts = deviceLine.split('|').map(part => part.trim())
@@ -188,7 +188,7 @@ export class INIParser {
       siteId: parts[1],
       siteName: parts[2],
       password: parts[3],
-      tags: parts[4] ? parts[4].split(';').map(tag => tag.trim()) : []
+      tags: parts[4] ? parts[4].split(',').map(tag => tag.trim()) : []
     }
   }
 
@@ -196,7 +196,7 @@ export class INIParser {
    * 生成设备注册表条目
    */
   private static generateDeviceEntry(device: Device): string {
-    const tags = device.tags.length > 0 ? device.tags.join(';') : ''
+    const tags = device.tags.length > 0 ? device.tags.join(',') : ''
     return `# ${device.macAddress}|${device.siteId}|${device.siteName}|${device.password}|${tags}\n`
   }
 

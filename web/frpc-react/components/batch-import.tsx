@@ -27,7 +27,7 @@ export function BatchImport({ showBatchImport, setShowBatchImport, onImport }: B
       if (!trimmedLine) continue
 
       // 支持两种格式：
-      // 1. 逗号分隔：站点编号,站点名称,MAC地址,密码,标签(用;分隔)
+      // 1. 逗号分隔：站点编号,站点名称,MAC地址,密码,标签(用,分隔)
       // 2. 空格分隔：站点编号 MAC地址 [站点名称]
       let parts: string[]
       if (trimmedLine.includes(',')) {
@@ -58,7 +58,7 @@ export function BatchImport({ showBatchImport, setShowBatchImport, onImport }: B
           continue
         }
 
-        const tags = tagsStr ? tagsStr.split(';').map(t => t.trim()).filter(t => t) : []
+        const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(t => t) : []
 
         const site: Site = {
           macAddress,
@@ -125,44 +125,41 @@ export function BatchImport({ showBatchImport, setShowBatchImport, onImport }: B
 
   return (
     <Dialog open={showBatchImport} onOpenChange={setShowBatchImport}>
-      <DialogContent className="sm:max-w-2xl glass-effect rounded-3xl border-0">
+      <DialogContent className="max-w-[90rem] w-[90%] max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle className="title-2">批量导入站点</DialogTitle>
+          <DialogTitle>批量导入站点</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
           <div className="space-y-3">
-            <Label className="text-sm font-semibold text-slate-700">导入格式说明</Label>
-            <div className="caption text-slate-600 bg-gradient-to-r from-slate-100 to-slate-200 p-6 rounded-2xl backdrop-blur-sm">
-              <p><strong>CSV格式（推荐）：</strong>站点编号,站点名称,MAC地址,密码,标签(用;分隔)</p>
-              <p className="mt-1">示例：DC20240102,苏州辐射站,E721EE345A2,password123,测试;在线</p>
-              <p className="mt-2"><strong>简单格式：</strong>站点编号 MAC地址 [站点名称]</p>
-              <p className="mt-1">示例：DC20240102 E721EE345A2 苏州辐射站</p>
-            </div>
-          </div>
-          <div className="space-y-3">
-            <Label htmlFor="importData" className="text-sm font-semibold text-slate-700">
-              导入数据
+            <Label htmlFor="importData" className="text-sm font-semibold text-foreground">
+              批量导入数据
             </Label>
             <Textarea
               id="importData"
               value={batchImportText}
               onChange={(e) => setBatchImportText(e.target.value)}
-              placeholder="请输入站点数据..."
-              rows={6}
-              className="border-0 bg-slate-100/60 rounded-2xl resize-none focus:bg-white focus:shadow-lg transition-all duration-200 backdrop-blur-sm"
+              placeholder={`请输入站点数据...
+
+CSV格式（推荐）：站点编号,站点名称,MAC地址,密码,标签(用;分隔)
+示例：DC20240102,苏州辐射站,E721EE345A2,password123,测试;在线
+
+简单格式：站点编号 MAC地址 [站点名称]
+示例：DC20240102 E721EE345A2 苏州辐射站`}
+              rows={12}
+              className="apple-input resize-none placeholder:text-muted-foreground placeholder:opacity-70"
             />
           </div>
           <div className="flex gap-4 pt-4">
             <Button
               variant="outline"
               onClick={() => setShowBatchImport(false)}
-              className="flex-1 border-slate-200 text-slate-600 bg-white/90 hover:bg-white hover:shadow-lg rounded-2xl py-4 animated-element backdrop-blur-sm"
+              className="flex-1 py-4"
             >
               取消
             </Button>
             <Button 
               onClick={handleBatchImport} 
-              className="flex-1 button-primary" 
+              className="flex-1 py-4" 
               disabled={!batchImportText.trim() || importing}
             >
               {importing ? '导入中...' : '确认导入'}

@@ -4,7 +4,8 @@ import { useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { Search, Filter, ChevronDown, ChevronUp } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Search, Filter, FileText, Plus, Loader2, Edit } from "lucide-react"
 import type { Site } from "@/types/site"
 
 interface SiteFiltersProps {
@@ -16,6 +17,12 @@ interface SiteFiltersProps {
   showTagFilter: boolean
   setShowTagFilter: (show: boolean) => void
   filteredSites: Site[]
+  editMode: boolean
+  loading: boolean
+  onEditModeChange: (editMode: boolean) => void
+  onSaveChanges: () => void
+  onShowBatchImport: () => void
+  onShowConfigEditor: () => void
 }
 
 export function SiteFilters({
@@ -27,6 +34,12 @@ export function SiteFilters({
   showTagFilter,
   setShowTagFilter,
   filteredSites,
+  editMode,
+  loading,
+  onEditModeChange,
+  onSaveChanges,
+  onShowBatchImport,
+  onShowConfigEditor,
 }: SiteFiltersProps) {
   // Get all available tags
   const allTags = useMemo(() => {
@@ -44,26 +57,142 @@ export function SiteFilters({
         <CardContent className="p-8">
           <div className="flex flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
               <Input
                 placeholder="搜索站点编号、名称或标签"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 border-0 bg-slate-100/60 rounded-2xl h-14 text-base placeholder:text-slate-400 focus:bg-white focus:shadow-lg transition-all duration-200"
+                className="pl-12 apple-input h-14 text-base placeholder:text-muted-foreground"
               />
             </div>
-            <Button
-              variant="outline"
-              onClick={() => setShowTagFilter(!showTagFilter)}
-              className="border-slate-200 text-slate-600 bg-white/90 hover:bg-white hover:shadow-lg rounded-2xl px-6 h-14 min-w-[140px] animated-element backdrop-blur-sm"
-            >
-              <Filter className="w-4 h-4 mr-2" />
-              标签筛选
-              {showTagFilter ? <ChevronUp className="w-4 h-4 ml-2" /> : <ChevronDown className="w-4 h-4 ml-2" />}
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowTagFilter(!showTagFilter)}
+                    className="text-secondary-foreground hover:text-primary hover:bg-accent hover:border-primary border-border rounded-2xl w-12 h-12 p-0 transition-all duration-300"
+                  >
+                    <Filter className="w-5 h-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>标签</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </CardContent>
       </Card>
+
+      {/* 右侧悬浮按钮组 - 苹果风格 */}
+      {!editMode ? (
+        <div className="fixed right-24 top-1/2 -translate-y-1/2 z-50">
+          <div className="bg-white/90 backdrop-blur-xl border border-border/30 rounded-3xl p-3 shadow-2xl shadow-black/10">
+            <div className="flex flex-col gap-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={onShowBatchImport} 
+                      className="bg-success hover:bg-success/90 text-success-foreground rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 active:scale-95 hover:scale-105 disabled:opacity-50 shadow-lg shadow-success/25"
+                      disabled={loading}
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="left">
+                    <p>导入</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={() => onEditModeChange(true)} 
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 active:scale-95 hover:scale-105 disabled:opacity-50 shadow-lg shadow-primary/25"
+                      disabled={loading}
+                    >
+                      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Edit className="w-5 h-5" />}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="left">
+                    <p>修改</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="fixed right-24 top-1/2 -translate-y-1/2 z-50">
+          <div className="bg-white/90 backdrop-blur-xl border border-border/30 rounded-3xl p-3 shadow-2xl shadow-black/10">
+            <div className="flex flex-col gap-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={onShowConfigEditor} 
+                      className="bg-warning hover:bg-warning/90 text-warning-foreground rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 active:scale-95 hover:scale-105 disabled:opacity-50 shadow-lg shadow-warning/25"
+                      disabled={loading}
+                    >
+                      <FileText className="w-5 h-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="left">
+                    <p>文本模式</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={onSaveChanges} 
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 active:scale-95 hover:scale-105 disabled:opacity-50 shadow-lg shadow-primary/25"
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="left">
+                    <p>{loading ? '保存中...' : '保存'}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={() => onEditModeChange(false)} 
+                      className="bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 active:scale-95 hover:scale-105 disabled:opacity-50"
+                      disabled={loading}
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="left">
+                    <p>取消</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {/* Tag Filter Panel */}
       {showTagFilter && (
@@ -89,10 +218,10 @@ export function SiteFilters({
                           setSelectedTags([...selectedTags, tag])
                         }
                       }}
-                      className={`rounded-full px-5 py-2.5 text-sm font-medium animated-element transition-all duration-200 ${
+                      className={`rounded-full px-5 py-2.5 text-sm font-medium animated-element transition-all duration-300 ${
                         isSelected
-                          ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 scale-105 shadow-lg shadow-blue-500/25"
-                          : "bg-slate-100/60 hover:bg-white hover:shadow-lg text-slate-600 border-slate-200 scale-100 backdrop-blur-sm"
+                          ? "bg-primary text-primary-foreground border-0 scale-105 shadow-lg shadow-primary/25"
+                          : "bg-accent hover:bg-accent/80 text-accent-foreground border border-border scale-100"
                       }`}
                     >
                       {tag} ({siteCount})
@@ -101,16 +230,16 @@ export function SiteFilters({
                 })}
               </div>
               {selectedTags.length > 0 && (
-                <div className="pt-6 border-t border-slate-200">
+                <div className="pt-6 border-t border-border">
                   <div className="flex items-center justify-between">
-                    <span className="caption text-slate-500">
+                    <span className="caption text-muted-foreground">
                       已选择 {selectedTags.length} 个标签，匹配 {filteredSites.length} 个站点
                     </span>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setSelectedTags([])}
-                      className="border-slate-200 text-slate-500 bg-white/90 hover:bg-white hover:shadow-md rounded-xl px-4 py-2 backdrop-blur-sm"
+                      className="border-border text-muted-foreground bg-background hover:bg-accent hover:text-accent-foreground rounded-2xl px-4 py-2"
                     >
                       清除
                     </Button>

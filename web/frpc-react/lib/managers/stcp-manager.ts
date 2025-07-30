@@ -170,7 +170,7 @@ export class STCPManager {
   }
 
   /**
-   * 批量导入站点
+   * 导入站点
    */
   importSites(sites: Site[]): { success: number; errors: string[] } {
     const errors: string[] = []
@@ -211,7 +211,7 @@ export class STCPManager {
   }
 
   /**
-   * 为站点生成默认代理配置
+   * 为站点生成默认端口配置
    */
   generateDefaultConfigs(site: Site): Proxy[] {
     const configs: Proxy[] = []
