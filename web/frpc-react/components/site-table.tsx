@@ -164,8 +164,9 @@ export function SiteTable({
                       <>
                         <Button
                           size="sm"
+                          variant="outline"
                           onClick={() => onAccessSite(site)}
-                          className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl px-4 py-2 text-xs animated-element shadow-sm"
+                          className="border border-border bg-background hover:bg-accent text-foreground rounded-2xl px-4 py-2 text-xs animated-element"
                         >
                           访问
                         </Button>
