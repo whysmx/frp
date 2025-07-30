@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Settings, Plus } from "lucide-react"
+import { Settings, Plus, Globe, Terminal, Database, Monitor } from "lucide-react"
 import type { Site } from "@/types/site"
 
 interface SiteTableProps {
@@ -38,20 +38,20 @@ export function SiteTable({
         <Table>
           <TableHeader className="sticky top-0 z-10">
             <TableRow className="border-b border-border/50 bg-secondary/50 backdrop-blur-sm">
-              <TableHead className="text-secondary-foreground font-semibold py-8 px-10 w-60">站点编号</TableHead>
-              <TableHead className="text-secondary-foreground font-semibold py-8 px-10 w-60">站点名称</TableHead>
-              {isEditMode && <TableHead className="text-secondary-foreground font-semibold py-8 px-10">MAC地址</TableHead>}
-              <TableHead className="text-secondary-foreground font-semibold py-8 px-10">密码</TableHead>
-              <TableHead className="text-secondary-foreground font-semibold py-8 px-10 w-80">标签</TableHead>
-              <TableHead className="text-secondary-foreground font-semibold py-8 px-10 text-center">操作</TableHead>
+              <TableHead className="text-secondary-foreground font-medium py-8 px-10 w-60">站点编号</TableHead>
+              <TableHead className="text-secondary-foreground font-medium py-8 px-10 w-60">站点名称</TableHead>
+              {isEditMode && <TableHead className="text-secondary-foreground font-medium py-8 px-10">MAC地址</TableHead>}
+              <TableHead className="text-secondary-foreground font-medium py-8 px-10">密码</TableHead>
+              <TableHead className="text-secondary-foreground font-medium py-8 px-10 w-80">标签</TableHead>
+              <TableHead className="text-secondary-foreground font-medium py-8 px-10 text-center">操作</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sites.map((site, index) => (
               <TableRow
                 key={site.macAddress}
-                className={`border-b border-border/30 transition-all duration-300 hover:bg-accent/50 ${
-                  index % 2 === 0 ? "bg-white/90" : "bg-muted/30"
+                className={`border-b border-border/30 table-row-elevated transition-all duration-300 hover:bg-accent/30 ${
+                  index % 2 === 0 ? "bg-white/95" : "bg-muted/20"
                 }`}
               >
                 <TableCell className="py-8 px-10">
@@ -62,7 +62,7 @@ export function SiteTable({
                       className="apple-input h-11 font-mono text-sm"
                     />
                   ) : (
-                    <span className="font-mono text-sm font-semibold" style={{color: 'rgb(28 28 30)'}}>
+                    <span className="font-mono text-sm font-medium" style={{color: 'rgb(28 28 30)'}}>
                       {site.siteCode}
                     </span>
                   )}
@@ -75,7 +75,7 @@ export function SiteTable({
                       className="apple-input h-11 font-medium text-sm"
                     />
                   ) : (
-                    <span className="font-semibold" style={{color: 'rgb(28 28 30)'}}>{site.siteName}</span>
+                    <span className="font-medium" style={{color: 'rgb(28 28 30)'}}>{site.siteName}</span>
                   )}
                 </TableCell>
                 {isEditMode && (
@@ -95,7 +95,7 @@ export function SiteTable({
                       placeholder="输入密码"
                     />
                   ) : (
-                    <span className="text-sm font-mono" style={{color: 'rgb(28 28 30)'}}>
+                    <span className="text-sm font-mono font-normal" style={{color: 'rgb(28 28 30)'}}>
                       {site.password || "未设置"}
                     </span>
                   )}
@@ -122,9 +122,9 @@ export function SiteTable({
                                   onSiteFieldChange(site.macAddress, "tags", [...site.tags, tag])
                                 }
                               }}
-                              className={`rounded-full px-4 py-2 text-xs font-medium animated-element transition-all duration-300 ${
+                              className={`apple-button rounded-full px-4 py-2 text-xs font-normal animated-element transition-all duration-300 ${
                                 isSelected
-                                  ? "bg-primary text-primary-foreground border-0 scale-105 shadow-md shadow-primary/25"
+                                  ? "bg-primary text-primary-foreground border-0 scale-105"
                                   : "bg-accent hover:bg-accent/80 text-accent-foreground border border-border scale-100"
                               }`}
                             >
@@ -139,7 +139,7 @@ export function SiteTable({
                             const newTag = prompt("请输入新标签:")
                             if (newTag) onAddTag(site.macAddress, newTag)
                           }}
-                          className="rounded-full px-4 py-2 text-xs border-2 border-dashed border-border text-muted-foreground bg-background hover:bg-accent hover:text-accent-foreground animated-element"
+                          className="apple-button rounded-full px-4 py-2 text-xs border-2 border-dashed border-border text-muted-foreground bg-background hover:bg-accent hover:text-accent-foreground animated-element"
                         >
                           <Plus className="w-4 h-4 mr-1" />
                           添加
@@ -149,8 +149,8 @@ export function SiteTable({
                       site.tags.map((tag) => (
                         <Badge
                           key={tag}
-                          className="rounded-full px-4 py-2 text-xs font-medium border border-border cursor-default transition-all duration-300"
-                          style={{backgroundColor: 'rgb(242 242 247)', color: 'rgb(28 28 30)'}}
+                          className="rounded-full px-4 py-2 text-xs font-normal border border-border/30 cursor-default transition-all duration-300"
+                          style={{backgroundColor: 'rgb(248 248 250)', color: 'rgb(28 28 30)'}}
                         >
                           {tag}
                         </Badge>
@@ -160,51 +160,70 @@ export function SiteTable({
                 </TableCell>
                 <TableCell className="py-8 px-10 text-right">
                   <div className="flex gap-3 justify-end">
-                    {!isEditMode && (
-                      <>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => onAccessSite(site)}
-                          className="border border-border bg-background hover:bg-accent text-foreground rounded-2xl px-4 py-2 text-xs animated-element"
-                        >
-                          访问
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => onSSHAccess(site)}
-                          className="border border-border bg-background hover:bg-accent text-foreground rounded-2xl px-4 py-2 text-xs animated-element"
-                        >
-                          SSH
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => onMySQLAccess(site)}
-                          className="border border-border bg-background hover:bg-accent text-foreground rounded-2xl px-4 py-2 text-xs animated-element"
-                        >
-                          MySQL
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            // BS功能处理
-                            console.log(`BS访问: ${site.siteName}`)
-                          }}
-                          className="border border-border bg-background hover:bg-accent text-foreground rounded-2xl px-4 py-2 text-xs animated-element"
-                        >
-                          BS
-                        </Button>
-                      </>
-                    )}
+                    {!isEditMode && (() => {
+                      // 检查端口配置是否存在
+                      const hasWebPort = site.configs.find((p) => p.name.includes("-5000"))
+                      const hasSSHPort = site.configs.find((p) => p.name.endsWith("-22"))
+                      const hasMySQLPort = site.configs.find((p) => p.name.endsWith("-3306"))
+                      // BS暂时假设可用，后续可添加具体端口检查
+                      const hasBSPort = true
+                      
+                      return (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={!hasWebPort}
+                            onClick={() => hasWebPort && onAccessSite(site)}
+                            className="ios-button text-foreground rounded-2xl px-3 py-2 text-xs animated-element"
+                            title={hasWebPort ? "访问站点" : "访问站点 - 未配置网站端口(-5000)"}
+                          >
+                            <Globe className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={!hasSSHPort}
+                            onClick={() => hasSSHPort && onSSHAccess(site)}
+                            className="ios-button text-foreground rounded-2xl px-3 py-2 text-xs font-normal animated-element"
+                            title={hasSSHPort ? "SSH连接" : "SSH连接 - 未配置SSH端口(-22)"}
+                          >
+                            <Terminal className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={!hasMySQLPort}
+                            onClick={() => hasMySQLPort && onMySQLAccess(site)}
+                            className="ios-button text-foreground rounded-2xl px-3 py-2 text-xs font-normal animated-element"
+                            title={hasMySQLPort ? "MySQL连接" : "MySQL连接 - 未配置MySQL端口(-3306)"}
+                          >
+                            <Database className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={!hasBSPort}
+                            onClick={() => {
+                              if (hasBSPort) {
+                                // BS功能处理
+                                console.log(`BS访问: ${site.siteName}`)
+                              }
+                            }}
+                            className="ios-button text-foreground rounded-2xl px-3 py-2 text-xs font-normal animated-element"
+                            title="BS平台"
+                          >
+                            <Monitor className="w-4 h-4" />
+                          </Button>
+                        </>
+                      )
+                    })()}
                     {isEditMode && (
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => onShowProxyConfig(site)}
-                        className="border border-border bg-background hover:bg-accent text-foreground rounded-2xl px-4 py-2 text-xs animated-element"
+                        className="ios-button text-foreground rounded-2xl px-4 py-2 text-xs font-normal animated-element"
                       >
                         <Settings className="w-4 h-4 mr-1" />
                         端口配置

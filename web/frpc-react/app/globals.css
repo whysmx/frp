@@ -129,7 +129,11 @@
 
 @layer components {
   .glass-effect {
-    @apply bg-white/90 backdrop-blur-xl border border-white/30 shadow-xl shadow-slate-500/10;
+    @apply bg-white/95 backdrop-blur-xl border border-white/50;
+    box-shadow: 
+      0 4px 32px -4px rgba(0, 0, 0, 0.1),
+      0 2px 16px -2px rgba(0, 0, 0, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 
   .button-primary {
@@ -157,18 +161,100 @@
   }
 
   .card-hover {
-    @apply hover:shadow-2xl hover:shadow-black/10 hover:-translate-y-0.5;
+    @apply transition-all duration-500 ease-out;
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 8px 40px -8px rgba(0, 0, 0, 0.15),
+      0 4px 24px -4px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
   
   /* 苹果风格按钮基础样式 */
   .apple-button {
     @apply rounded-2xl px-6 py-4 font-medium transition-all duration-300 ease-out;
     @apply active:scale-95 hover:scale-[1.02];
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
+  
+  .apple-button:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  }
+  
+  .apple-button:active {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
   /* 苹果风格输入框 */
   .apple-input {
     @apply rounded-xl border border-border bg-input px-4 py-3 transition-all duration-300;
     @apply focus:ring-2 focus:ring-primary/20 focus:border-primary;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .apple-input:focus {
+    box-shadow: 
+      inset 0 1px 2px rgba(0, 0, 0, 0.1),
+      0 0 0 3px rgba(0, 122, 255, 0.1);
+  }
+  
+  /* 表格行立体效果 */
+  .table-row-elevated {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+  
+  .table-row-elevated:hover {
+    box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      0 1px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* iOS风格操作按钮 */
+  .ios-button {
+    background: linear-gradient(to bottom, rgb(250, 250, 250), rgb(245, 245, 247));
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+  
+  .ios-button:hover {
+    background: linear-gradient(to bottom, rgb(245, 245, 247), rgb(240, 240, 242));
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+  }
+  
+  .ios-button:active {
+    background: linear-gradient(to bottom, rgb(240, 240, 242), rgb(235, 235, 237));
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    transform: translateY(0);
+  }
+  
+  .ios-button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: linear-gradient(to bottom, rgb(245, 245, 245), rgb(238, 238, 240)) !important;
+    border-color: rgba(0, 0, 0, 0.05) !important;
+    color: rgb(174, 174, 178) !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    transform: none !important;
+  }
+  
+  .ios-button:disabled:hover {
+    background: linear-gradient(to bottom, rgb(245, 245, 245), rgb(238, 238, 240)) !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    transform: none !important;
+  }
+  
+  .ios-button:disabled svg {
+    opacity: 0.4;
+  }
+  
+  /* 简单的toast动画 */
+  @keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(-10px); }
+    10%, 90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-10px); }
   }
 }

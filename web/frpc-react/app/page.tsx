@@ -47,26 +47,89 @@ export default function FrpcSiteManagement() {
   const handleAccessSite = (site: Site) => {
     const proxy5000 = site.configs.find((p) => p.name.includes("-5000"))
     if (proxy5000) {
-      const url = `http://localhost:${proxy5000.bind_port}`
-      window.open(url, "_blank")
+      const baseUrl = `http://localhost:${proxy5000.bind_port}`
+      const urlWithParams = `${baseUrl}?site=${encodeURIComponent(site.siteCode)}.${encodeURIComponent(site.siteName)}`
+      window.open(urlWithParams, "_blank")
     }
   }
 
   const handleSSHAccess = (site: Site) => {
-    const proxy22 = site.configs.find((p) => p.name.includes("-22"))
+    // 查找服务名后缀是 -22 的端口
+    const proxy22 = site.configs.find((p) => p.name.endsWith("-22"))
     if (proxy22) {
-      const sshCommand = `ssh -p ${proxy22.bind_port} user@localhost`
-      navigator.clipboard.writeText(sshCommand)
-      console.log(`SSH命令已复制: ${sshCommand}`)
+      // 获取当前浏览器访问的主机IP
+      const currentHost = window.location.hostname
+      const sessionName = `${site.siteCode}.${site.siteName}`
+      
+      // 生成XShell命令（带标签名称）
+      const xshellCommand = `xshell -newtab "${sessionName}" ssh forlinx@${currentHost} -p ${proxy22.bind_port}`
+      
+      // 复制XShell命令到剪贴板
+      navigator.clipboard.writeText(xshellCommand)
+      
+      // 简单的自动消失提示
+      const toast = document.createElement('div')
+      toast.textContent = `SSH命令已复制 (标签: ${sessionName})`
+      toast.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 9999;
+        background: rgba(0, 0, 0, 0.8); color: white; padding: 12px 16px;
+        border-radius: 8px; font-size: 14px; max-width: 400px;
+        animation: fadeInOut 3s forwards;
+      `
+      document.body.appendChild(toast)
+      setTimeout(() => toast.remove(), 3000)
+    } else {
+      // 错误提示
+      const toast = document.createElement('div')
+      toast.textContent = '未找到SSH端口配置（后缀-22）'
+      toast.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 9999;
+        background: rgba(220, 38, 38, 0.9); color: white; padding: 12px 16px;
+        border-radius: 8px; font-size: 14px; max-width: 400px;
+        animation: fadeInOut 3s forwards;
+      `
+      document.body.appendChild(toast)
+      setTimeout(() => toast.remove(), 3000)
     }
   }
 
   const handleMySQLAccess = (site: Site) => {
-    const proxy3306 = site.configs.find((p) => p.name.includes("-3306"))
+    // 查找服务名后缀是 -3306 的端口
+    const proxy3306 = site.configs.find((p) => p.name.endsWith("-3306"))
     if (proxy3306) {
-      const mysqlCommand = `mysql -h localhost -P ${proxy3306.bind_port} -u root -p`
-      navigator.clipboard.writeText(mysqlCommand)
-      console.log(`MySQL命令已复制: ${mysqlCommand}`)
+      // 获取当前浏览器访问的主机IP
+      const currentHost = window.location.hostname
+      const sessionName = `${site.siteCode}.${site.siteName}`
+      
+      // 生成DBeaver可直接使用的MySQL连接URL
+      const connectionInfo = `mysql://root:Sun%40123456@${currentHost}:${proxy3306.bind_port}/`
+      
+      // 复制连接信息到剪贴板
+      navigator.clipboard.writeText(connectionInfo)
+      
+      // 简单的自动消失提示
+      const toast = document.createElement('div')
+      toast.textContent = `MySQL连接信息已复制 (${sessionName})`
+      toast.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 9999;
+        background: rgba(0, 0, 0, 0.8); color: white; padding: 12px 16px;
+        border-radius: 8px; font-size: 14px; max-width: 400px;
+        animation: fadeInOut 3s forwards;
+      `
+      document.body.appendChild(toast)
+      setTimeout(() => toast.remove(), 3000)
+    } else {
+      // 错误提示
+      const toast = document.createElement('div')
+      toast.textContent = '未找到MySQL端口配置（后缀-3306）'
+      toast.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 9999;
+        background: rgba(220, 38, 38, 0.9); color: white; padding: 12px 16px;
+        border-radius: 8px; font-size: 14px; max-width: 400px;
+        animation: fadeInOut 3s forwards;
+      `
+      document.body.appendChild(toast)
+      setTimeout(() => toast.remove(), 3000)
     }
   }
 
