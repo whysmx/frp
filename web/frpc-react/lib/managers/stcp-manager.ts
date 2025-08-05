@@ -22,7 +22,8 @@ export class STCPManager {
    */
   async loadData(): Promise<Site[]> {
     try {
-      const configText = await this.apiClient.getConfig()
+      // 使用带端口检测的方法获取配置
+      const configText = await this.apiClient.getConfigWithPortDetection()
       this.configData = INIParser.parse(configText)
       this.sites = this.convertToSites(this.configData)
       this.lastSyncTime = new Date()
@@ -181,11 +182,91 @@ export class STCPManager {
         this.addSite(site)
         success++
       } catch (error) {
-        errors.push(`${site.siteCode}: ${error instanceof Error ? error.message : '未知错误'}`)
+        errors.push(`${site.siteCode || site.macAddress}: ${error instanceof Error ? error.message : '未知错误'}`)
       }
     }
 
     return { success, errors }
+  }
+
+  /**
+   * 导入站点并检测重复
+   */
+  importSitesWithDuplicateCheck(sites: Site[]): { 
+    success: number; 
+    errors: string[]; 
+    duplicates: Site[];
+  } {
+    const errors: string[] = []
+    const duplicates: Site[] = []
+    let success = 0
+
+    for (const site of sites) {
+      try {
+        // 检查是否重复
+        if (this.sites.some(s => s.macAddress === site.macAddress)) {
+          duplicates.push(site)
+        } else {
+          this.addSite(site)
+          success++
+        }
+      } catch (error) {
+        errors.push(`${site.siteCode || site.macAddress}: ${error instanceof Error ? error.message : '未知错误'}`)
+      }
+    }
+
+    return { success, errors, duplicates }
+  }
+
+  /**
+   * 覆盖导入站点（更新所有非空字段）
+   */
+  importSitesWithOverwrite(sites: Site[], overwriteDuplicates: boolean = false): { 
+    success: number; 
+    errors: string[]; 
+    overwritten: number;
+  } {
+    const errors: string[] = []
+    let success = 0
+    let overwritten = 0
+
+    for (const site of sites) {
+      try {
+        const existingIndex = this.sites.findIndex(s => s.macAddress === site.macAddress)
+        
+        if (existingIndex !== -1) {
+          if (overwriteDuplicates) {
+            // 覆盖模式：更新所有非空字段
+            const existingSite = this.sites[existingIndex]
+            const updatedSite = { ...existingSite }
+            
+            // 更新所有非空字段
+            Object.keys(site).forEach(key => {
+              const value = site[key as keyof Site]
+              if (value !== '' && value !== null && value !== undefined) {
+                if (key === 'tags' && Array.isArray(value) && value.length > 0) {
+                  updatedSite[key as keyof Site] = value as any
+                } else if (key !== 'tags' && value) {
+                  updatedSite[key as keyof Site] = value as any
+                }
+              }
+            })
+            
+            this.sites[existingIndex] = updatedSite
+            overwritten++
+          } else {
+            errors.push(`${site.siteCode || site.macAddress}: MAC地址已存在`)
+          }
+        } else {
+          this.addSite(site)
+          success++
+        }
+      } catch (error) {
+        errors.push(`${site.siteCode || site.macAddress}: ${error instanceof Error ? error.message : '未知错误'}`)
+      }
+    }
+
+    return { success, errors, overwritten }
   }
 
   /**

@@ -10,6 +10,34 @@ import { ConfigEditor } from "@/components/config-editor"
 import { useSiteContext } from "@/contexts/site-context"
 import type { Site, Proxy } from "@/types/site"
 
+// 兼容性剪贴板复制函数 - 支持远程访问
+async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    // 优先使用现代 Clipboard API (需要 HTTPS 或 localhost)
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text)
+      return true
+    }
+    
+    // 降级方案：使用传统的 document.execCommand
+    const textArea = document.createElement('textarea')
+    textArea.value = text
+    textArea.style.position = 'fixed'
+    textArea.style.left = '-999999px'
+    textArea.style.top = '-999999px'
+    document.body.appendChild(textArea)
+    textArea.focus()
+    textArea.select()
+    
+    const result = document.execCommand('copy')
+    document.body.removeChild(textArea)
+    return result
+  } catch (error) {
+    console.error('复制到剪贴板失败:', error)
+    return false
+  }
+}
+
 export default function FrpcSiteManagement() {
   const { state, actions } = useSiteContext()
   const [showTagFilter, setShowTagFilter] = useState(false)
@@ -17,9 +45,10 @@ export default function FrpcSiteManagement() {
   const [showConfigEditor, setShowConfigEditor] = useState(false)
   const [showProxyConfig, setShowProxyConfig] = useState<Site | null>(null)
 
-  // 初始化数据加载
+  // 初始化数据加载 - 使用ref避免依赖actions导致的无限循环
   useEffect(() => {
     actions.loadSites()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // 解构状态
@@ -47,29 +76,34 @@ export default function FrpcSiteManagement() {
   const handleAccessSite = (site: Site) => {
     const proxy5000 = site.configs.find((p) => p.name.includes("-5000"))
     if (proxy5000) {
-      const baseUrl = `http://localhost:${proxy5000.bind_port}`
+      const currentHost = window.location.hostname
+      const baseUrl = `http://${currentHost}:${proxy5000.bind_port}`
       const urlWithParams = `${baseUrl}?site=${encodeURIComponent(site.siteCode)}.${encodeURIComponent(site.siteName)}`
       window.open(urlWithParams, "_blank")
     }
   }
 
-  const handleSSHAccess = (site: Site) => {
-    // 查找服务名后缀是 -22 的端口
+  const handleSSHAccess = async (site: Site) => {
+    // 查找服务名后缀是 -22 的端口和 -3306 的端口
     const proxy22 = site.configs.find((p) => p.name.endsWith("-22"))
-    if (proxy22) {
-      // 获取当前浏览器访问的主机IP
+    const proxy3306 = site.configs.find((p) => p.name.endsWith("-3306"))
+    
+    if (proxy22 && proxy3306) {
+      // 获取当前浏览器访问的主机IP（与访问站点按钮相同的方式）
       const currentHost = window.location.hostname
       const sessionName = `${site.siteCode}.${site.siteName}`
       
-      // 生成XShell命令（带标签名称）
-      const xshellCommand = `xshell -newtab "${sessionName}" ssh forlinx@${currentHost} -p ${proxy22.bind_port}`
+      // 生成XShell命令 - 使用主机IP和3306端口的映射端口
+      const xshellCommand = `xshell -newtab "${sessionName}" ssh forlinx@${currentHost}:${proxy3306.bind_port}`
       
-      // 复制XShell命令到剪贴板
-      navigator.clipboard.writeText(xshellCommand)
+      // 复制XShell命令到剪贴板 - 兼容远程访问
+      const copySuccess = await copyToClipboard(xshellCommand)
       
       // 简单的自动消失提示
       const toast = document.createElement('div')
-      toast.textContent = `SSH命令已复制 (标签: ${sessionName})`
+      toast.textContent = copySuccess 
+        ? `SSH命令已复制 (标签: ${sessionName})`
+        : `复制失败，请手动复制：${xshellCommand}`
       toast.style.cssText = `
         position: fixed; top: 20px; right: 20px; z-index: 9999;
         background: rgba(0, 0, 0, 0.8); color: white; padding: 12px 16px;
@@ -81,7 +115,11 @@ export default function FrpcSiteManagement() {
     } else {
       // 错误提示
       const toast = document.createElement('div')
-      toast.textContent = '未找到SSH端口配置（后缀-22）'
+      let errorMsg = '配置不完整：'
+      if (!proxy22) errorMsg += '未找到SSH端口配置（-22）'
+      if (!proxy3306) errorMsg += (!proxy22 ? '，' : '') + '未找到MySQL端口配置（-3306）'
+      
+      toast.textContent = errorMsg
       toast.style.cssText = `
         position: fixed; top: 20px; right: 20px; z-index: 9999;
         background: rgba(220, 38, 38, 0.9); color: white; padding: 12px 16px;
@@ -93,7 +131,7 @@ export default function FrpcSiteManagement() {
     }
   }
 
-  const handleMySQLAccess = (site: Site) => {
+  const handleMySQLAccess = async (site: Site) => {
     // 查找服务名后缀是 -3306 的端口
     const proxy3306 = site.configs.find((p) => p.name.endsWith("-3306"))
     if (proxy3306) {
@@ -104,12 +142,14 @@ export default function FrpcSiteManagement() {
       // 生成DBeaver可直接使用的MySQL连接URL
       const connectionInfo = `mysql://root:Sun%40123456@${currentHost}:${proxy3306.bind_port}/`
       
-      // 复制连接信息到剪贴板
-      navigator.clipboard.writeText(connectionInfo)
+      // 复制连接信息到剪贴板 - 兼容远程访问
+      const copySuccess = await copyToClipboard(connectionInfo)
       
       // 简单的自动消失提示
       const toast = document.createElement('div')
-      toast.textContent = `MySQL连接信息已复制 (${sessionName})`
+      toast.textContent = copySuccess 
+        ? `MySQL连接信息已复制 (${sessionName})`
+        : `复制失败，请手动复制：${connectionInfo}`
       toast.style.cssText = `
         position: fixed; top: 20px; right: 20px; z-index: 9999;
         background: rgba(0, 0, 0, 0.8); color: white; padding: 12px 16px;
@@ -133,13 +173,6 @@ export default function FrpcSiteManagement() {
     }
   }
 
-  const handleBatchImport = async (newSites: Site[]) => {
-    try {
-      await actions.importSites(newSites)
-    } catch (error) {
-      console.error('Failed to import sites:', error)
-    }
-  }
 
   const handleShowProxyConfig = (site: Site) => {
     setShowProxyConfig(site)
@@ -193,7 +226,7 @@ export default function FrpcSiteManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 pb-20 sm:pb-4">
       <div className="max-w-[90rem] mx-auto space-y-8">
 
         {/* Search and Filter */}
@@ -239,7 +272,6 @@ export default function FrpcSiteManagement() {
         <BatchImport
           showBatchImport={showBatchImport}
           setShowBatchImport={setShowBatchImport}
-          onImport={handleBatchImport}
         />
 
         {/* Config Editor Dialog */}

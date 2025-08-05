@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
-import { Server } from 'lucide-react'
+
+export const dynamic = 'force-static'
 
 // Image metadata
 export const size = {

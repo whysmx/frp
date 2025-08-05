@@ -112,6 +112,8 @@ interface SiteContextType {
     updateSite: (macAddress: string, updates: Partial<Site>, silent?: boolean) => Promise<void>
     deleteSite: (macAddress: string) => Promise<void>
     importSites: (sites: Site[]) => Promise<{ success: number; errors: string[] }>
+    importSitesWithDuplicateCheck: (sites: Site[]) => Promise<{ success: number; errors: string[]; duplicates: Site[] }>
+    importSitesWithOverwrite: (sites: Site[], overwriteDuplicates: boolean) => Promise<{ success: number; errors: string[]; overwritten: number }>
     refreshData: () => Promise<void>
   }
 }
@@ -263,6 +265,54 @@ export function SiteProvider({ children }: { children: ReactNode }) {
         
         if (result.success > 0) {
           toast.success(`成功导入 ${result.success} 个站点`)
+        }
+        
+        if (result.errors.length > 0) {
+          toast.error(`导入失败: ${result.errors.slice(0, 3).join('; ')}${result.errors.length > 3 ? '...' : ''}`)
+        }
+        
+        return result
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : '导入失败'
+        toast.error(errorMessage)
+        throw error
+      }
+    },
+
+    async importSitesWithDuplicateCheck(sites: Site[]) {
+      try {
+        const result = stcpManager.importSitesWithDuplicateCheck(sites)
+        
+        // 更新状态中的站点列表
+        const updatedSites = stcpManager.getSites()
+        dispatch({ type: 'SET_SITES', payload: updatedSites })
+        
+        return result
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : '检测重复失败'
+        toast.error(errorMessage)
+        throw error
+      }
+    },
+
+    async importSitesWithOverwrite(sites: Site[], overwriteDuplicates: boolean) {
+      try {
+        const result = stcpManager.importSitesWithOverwrite(sites, overwriteDuplicates)
+        
+        // 更新状态中的站点列表
+        const updatedSites = stcpManager.getSites()
+        dispatch({ type: 'SET_SITES', payload: updatedSites })
+        
+        let message = ''
+        if (result.success > 0) {
+          message += `新增 ${result.success} 个站点`
+        }
+        if (result.overwritten > 0) {
+          message += `${message ? '，' : ''}覆盖 ${result.overwritten} 个站点`
+        }
+        
+        if (message) {
+          toast.success(message)
         }
         
         if (result.errors.length > 0) {

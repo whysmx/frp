@@ -48,6 +48,15 @@ make test
 make file
 ```
 
+### Production Build Scripts
+```bash
+# Windows 64位打包 (包含React前端)
+./scripts/build-windows.sh
+
+# 跨平台打包 (Linux/macOS/Windows)
+./scripts/build-all.sh
+```
+
 ## Architecture
 
 ### Core Components
@@ -109,6 +118,56 @@ This repository contains sample configuration files with default tokens. When de
 
 ### Dashboard Development
 The web dashboard source is in `web/frps/` and `web/frpc/` directories. Use `make file` to compile web assets into Go binaries after making changes.
+
+## Production Deployment
+
+### 自动化构建流程
+
+**Windows 64位构建**:
+```bash
+# 一键构建Windows可执行文件（包含React前端）
+./scripts/build-windows.sh
+```
+
+构建过程：
+1. 检查Go和npm环境
+2. 构建React前端 (`web/frpc-react`)
+3. 嵌入静态资源到Go代码 (`assets/` 目录)
+4. 编译Windows 64位可执行文件 (`bin/frps.exe`, `bin/frpc.exe`)
+
+**跨平台构建**:
+```bash
+# 构建所有支持平台的发布包
+./scripts/build-all.sh
+```
+
+支持平台：
+- Linux (amd64, arm64)
+- macOS (amd64, arm64) 
+- Windows (amd64, arm64)
+
+每个发布包包含：
+- 可执行文件 (frps/frpc)
+- 配置文件模板 (frps.ini, frpc.ini)
+- 启动脚本 (适配不同操作系统)
+- 使用说明 (README.md)
+
+### 前端资源嵌入
+
+项目使用 `statik` 库将前端静态资源编译到Go二进制文件中：
+
+1. **React前端** (`web/frpc-react/`) → `assets/frpc/static/`
+2. **Vue前端** (`web/frps/`) → `assets/frps/static/`
+3. **Go代码生成** → `assets/*/statik/statik.go`
+
+最终的可执行文件包含完整的Web界面，无需额外部署静态文件。
+
+### 部署检查清单
+
+- [ ] 修改默认token (生产环境必须)
+- [ ] 配置防火墙端口
+- [ ] 测试Web界面访问
+- [ ] 验证代理功能正常
 
 ## Frontend Development Rules (web/frpc-react/)
 

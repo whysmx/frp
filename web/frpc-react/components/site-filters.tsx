@@ -87,7 +87,7 @@ export function SiteFilters({
 
       {/* 右侧悬浮按钮组 - 苹果风格 */}
       {!editMode ? (
-        <div className="fixed right-24 top-1/2 -translate-y-1/2 z-50">
+        <div className="fixed right-[10px] top-1/2 -translate-y-1/2 z-50 max-h-[calc(100vh-2rem)] overflow-y-auto">
           <div className="bg-white/90 backdrop-blur-xl border border-border/30 rounded-3xl p-3 shadow-2xl shadow-black/10">
             <div className="flex flex-col gap-2">
               <TooltipProvider>
@@ -127,7 +127,7 @@ export function SiteFilters({
           </div>
         </div>
       ) : (
-        <div className="fixed right-24 top-1/2 -translate-y-1/2 z-50">
+        <div className="fixed right-[10px] top-1/2 -translate-y-1/2 z-50 max-h-[calc(100vh-2rem)] overflow-y-auto">
           <div className="bg-white/90 backdrop-blur-xl border border-border/30 rounded-3xl p-3 shadow-2xl shadow-black/10">
             <div className="flex flex-col gap-2">
               <TooltipProvider>
@@ -193,6 +193,111 @@ export function SiteFilters({
         </div>
       )}
 
+      {/* 移动端底部按钮栏 */}
+      <div className="sm:hidden fixed bottom-4 left-4 right-4 z-50">
+        <div className="bg-white/90 backdrop-blur-xl border border-border/30 rounded-3xl p-3 shadow-2xl shadow-black/10">
+          <div className="flex justify-center gap-3">
+            {!editMode ? (
+              <>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={onShowBatchImport} 
+                        className="bg-success hover:bg-success/90 text-success-foreground rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 active:scale-95 hover:scale-105 disabled:opacity-50 shadow-lg shadow-success/25"
+                        disabled={loading}
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>导入</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => onEditModeChange(true)} 
+                        className="bg-background hover:bg-accent text-foreground border border-border rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 active:scale-95 hover:scale-105 disabled:opacity-50"
+                        disabled={loading}
+                      >
+                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Edit className="w-5 h-5" />}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>修改</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </>
+            ) : (
+              <>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={onShowConfigEditor} 
+                        className="bg-warning hover:bg-warning/90 text-warning-foreground rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 active:scale-95 hover:scale-105 disabled:opacity-50 shadow-lg shadow-warning/25"
+                        disabled={loading}
+                      >
+                        <FileText className="w-5 h-5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>文本模式</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={onSaveChanges} 
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 active:scale-95 hover:scale-105 disabled:opacity-50 shadow-lg shadow-primary/25"
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{loading ? '保存中...' : '保存'}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => onEditModeChange(false)} 
+                        className="bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-2xl w-11 h-11 flex items-center justify-center transition-all duration-300 active:scale-95 hover:scale-105 disabled:opacity-50"
+                        disabled={loading}
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>取消</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Tag Filter Panel */}
       {showTagFilter && (
