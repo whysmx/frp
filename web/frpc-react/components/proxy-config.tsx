@@ -112,7 +112,7 @@ export function ProxyConfig({ showProxyConfig, setShowProxyConfig, onSave, allSi
               <div>
                 <h3 className="title-3">端口配置</h3>
                 <p className="caption text-foreground">
-                  站点: {showProxyConfig.siteName} ({showProxyConfig.siteCode})
+                  站点: {showProxyConfig.siteName || ''} ({showProxyConfig.siteCode || ''})
                 </p>
               </div>
             </div>

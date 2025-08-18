@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Search, Filter, FileText, Plus, Loader2, Edit } from "lucide-react"
+import { Search, Filter, FileText, Plus, Loader2, Edit, X } from "lucide-react"
 import type { Site } from "@/types/site"
 
 interface SiteFiltersProps {
@@ -62,8 +62,16 @@ export function SiteFilters({
                 placeholder="搜索站点编号、名称或标签"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 apple-input h-14 text-base placeholder:text-muted-foreground"
+                className="pl-12 pr-12 apple-input h-14 text-base placeholder:text-muted-foreground"
               />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-200 p-1 rounded-full hover:bg-accent"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
             <TooltipProvider>
               <Tooltip>

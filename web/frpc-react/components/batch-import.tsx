@@ -4,6 +4,7 @@ import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -23,9 +24,7 @@ const FIELD_OPTIONS = [
   { value: "siteCode", label: "站点编号" },
   { value: "siteName", label: "站点名称" },
   { value: "macAddress", label: "MAC地址" },
-  { value: "password", label: "密码" },
-  { value: "tags", label: "标签" },
-  { value: "ignore", label: "忽略此列" }
+  { value: "password", label: "密码" }
 ]
 
 const REQUIRED_FIELDS = ["macAddress"]
@@ -37,12 +36,14 @@ export function BatchImport({ showBatchImport, setShowBatchImport }: BatchImport
   const [showDuplicateDialog, setShowDuplicateDialog] = useState(false)
   const [duplicateSites, setDuplicateSites] = useState<Site[]>([])
   const [pendingSites, setPendingSites] = useState<Site[]>([])
+  const [unifiedTags, setUnifiedTags] = useState("")
   const { toast } = useToast()
-  const { actions } = useSiteContext()
+  const { state, actions } = useSiteContext()
 
   const exampleData = `苏州辐射站|DC001|E721EE345A01|pass123|测试,在线,重要
-南京监测点|DC002|E721EE345A02|pass456|生产,稳定
-无锡数据中心|DC003|E721EE345A03|pass789|重要,维护,关键,核心`
+南京监测点|DC002|E721EE345A02||生产,稳定
+无锡数据中心||E721EE345A03|pass789|重要,维护,关键,核心
+常州分站|DC004|E721EE345A04|pass000|`
 
   // 智能检测分隔符并解析数据
   const parsedData = useMemo(() => {
@@ -51,29 +52,78 @@ export function BatchImport({ showBatchImport, setShowBatchImport }: BatchImport
     const lines = batchImportText.trim().split('\n')
     if (lines.length === 0) return []
     
-    // 分隔符优先级：| > 制表符 > 空格（移除逗号，因为标签内部使用逗号）
-    const separators = ['|', '\t', ' ']
-    let bestSeparator = ' '
-    let maxColumns = 0
+    // 分隔符优先级：| > 制表符 > 空格
+    const separators = [
+      { char: '|', name: '竖线' },
+      { char: '\t', name: '制表符' },
+      { char: ' ', name: '空格' }
+    ]
     
-    // 检测最佳分隔符（基于第一行和整体一致性）
+    let bestSeparator = ' '
+    let maxScore = 0
+    
+    // 检测最佳分隔符
     for (const sep of separators) {
-      const firstRowColumns = lines[0].split(sep).length
-      if (firstRowColumns > 1) {
-        // 检查所有行是否大致一致（允许轻微差异）
-        const allColumnCounts = lines.map(line => line.split(sep).length)
-        const avgColumns = allColumnCounts.reduce((a, b) => a + b, 0) / allColumnCounts.length
+      let score = 0
+      let totalColumns = 0
+      const columnCounts: number[] = []
+      
+      // 分析每一行的列数
+      for (const line of lines) {
+        if (line.trim()) {
+          // 使用正则表达式分割，保留空列
+          let parts: string[]
+          if (sep.char === ' ') {
+            // 对于空格，需要处理多个连续空格的情况
+            parts = line.split(/\s+/).filter(part => part.length > 0)
+          } else {
+            // 对于|和制表符，直接分割保留空列
+            parts = line.split(sep.char)
+          }
+          
+          const columnCount = parts.length
+          columnCounts.push(columnCount)
+          totalColumns += columnCount
+        }
+      }
+      
+      if (columnCounts.length > 0) {
+        const avgColumns = totalColumns / columnCounts.length
+        const maxCols = Math.max(...columnCounts)
+        const minCols = Math.min(...columnCounts)
         
-        if (firstRowColumns >= maxColumns && Math.abs(firstRowColumns - avgColumns) < 1) {
-          bestSeparator = sep
-          maxColumns = firstRowColumns
+        // 评分：优先考虑列数一致性和分隔符优先级
+        if (maxCols > 1) {
+          // 一致性评分：差异越小分数越高
+          const consistency = 1 - (maxCols - minCols) / maxCols
+          // 优先级评分：| > \t > 空格
+          const priority = separators.length - separators.findIndex(s => s.char === sep.char)
+          
+          score = consistency * 100 + priority * 10 + avgColumns
+          
+          if (score > maxScore) {
+            maxScore = score
+            bestSeparator = sep.char
+          }
         }
       }
     }
     
-    return lines.map(line => 
-      line.split(bestSeparator).map(cell => cell.trim())
-    ).filter(row => row.some(cell => cell.length > 0))
+    // 使用最佳分隔符解析数据
+    return lines.map(line => {
+      if (!line.trim()) return []
+      
+      let parts: string[]
+      if (bestSeparator === ' ') {
+        // 空格分隔：合并多个连续空格，但保留所有非空部分
+        parts = line.split(/\s+/).filter(part => part.length > 0)
+      } else {
+        // 其他分隔符：保留空列
+        parts = line.split(bestSeparator)
+      }
+      
+      return parts.map(cell => cell.trim())
+    }).filter(row => row.length > 0 && row.some(cell => cell.length > 0))
   }, [batchImportText])
 
   // 获取最大列数
@@ -86,17 +136,13 @@ export function BatchImport({ showBatchImport, setShowBatchImport }: BatchImport
     if (maxColumns === 0) return {}
     
     const defaultMapping: Record<number, string> = {}
-    const fieldOrder = ["siteName", "siteCode", "macAddress", "password", "tags"]
+    const fieldOrder = ["siteName", "siteCode", "macAddress", "password"]
     
     for (let i = 0; i < Math.min(maxColumns, fieldOrder.length); i++) {
       defaultMapping[i] = fieldOrder[i]
     }
     
-    // 超过5列的都映射为标签
-    for (let i = fieldOrder.length; i < maxColumns; i++) {
-      defaultMapping[i] = "tags"
-    }
-    
+    // 超过4列的不映射
     return defaultMapping
   }, [maxColumns])
 
@@ -106,7 +152,7 @@ export function BatchImport({ showBatchImport, setShowBatchImport }: BatchImport
     
     // 用户的映射会覆盖默认映射
     Object.entries(columnMappings).forEach(([colIndex, fieldName]) => {
-      if (fieldName && fieldName !== "unselected") {
+      if (fieldName) {
         effective[parseInt(colIndex)] = fieldName
       }
     })
@@ -117,7 +163,7 @@ export function BatchImport({ showBatchImport, setShowBatchImport }: BatchImport
   // 验证映射是否完整
   const validationErrors = useMemo(() => {
     const errors: string[] = []
-    const mappedFields = Object.values(effectiveColumnMappings).filter(field => field && field !== "ignore" && field !== "unselected")
+    const mappedFields = Object.values(effectiveColumnMappings).filter(field => field && field !== "unselected")
     
     // 检查必填字段
     for (const required of REQUIRED_FIELDS) {
@@ -145,29 +191,25 @@ export function BatchImport({ showBatchImport, setShowBatchImport }: BatchImport
     }))
   }
 
+
   // 获取每列可用的选项（防止重复映射）
   const getAvailableOptionsForColumn = (currentColumnIndex: number) => {
     const usedFields = Object.entries(effectiveColumnMappings)
       .filter(([colIndex, fieldName]) => 
         parseInt(colIndex) !== currentColumnIndex && 
         fieldName && 
-        fieldName !== "ignore" && 
-        fieldName !== "unselected" &&
-        fieldName !== "tags" // 标签可以重复使用
+        fieldName !== "unselected"
       )
       .map(([, fieldName]) => fieldName)
 
     return FIELD_OPTIONS.filter(option => 
       option.value === "unselected" || 
-      option.value === "ignore" || 
-      option.value === "tags" || 
       !usedFields.includes(option.value)
     )
   }
 
   const generateSitesFromMapping = (): Site[] => {
     const sites: Site[] = []
-    let portCounter = 18015
 
     for (const row of parsedData) {
       try {
@@ -177,22 +219,34 @@ export function BatchImport({ showBatchImport, setShowBatchImport }: BatchImport
         Object.entries(effectiveColumnMappings).forEach(([colIndex, fieldName]) => {
           const cellValue = row[parseInt(colIndex)] || ""
           
-          if (fieldName === "tags") {
-            // 处理标签，支持多个标签用逗号分隔
-            const existingTags = siteData.tags || []
-            const newTags = cellValue ? cellValue.split(',').map(tag => tag.trim()).filter(tag => tag) : []
-            siteData.tags = [...existingTags, ...newTags]
-          } else if (fieldName && fieldName !== "ignore" && fieldName !== "unselected") {
+          if (fieldName && fieldName !== "unselected") {
             siteData[fieldName] = cellValue
           }
         })
+
+        // 添加统一标签
+        siteData.tags = []
+        if (unifiedTags.trim()) {
+          const unifiedTagsList = unifiedTags.split(',').map(tag => tag.trim()).filter(tag => tag)
+          siteData.tags = unifiedTagsList
+        }
 
         // 验证必填字段
         if (!siteData.macAddress) {
           continue
         }
 
-        // 生成代理配置
+        // 创建临时站点对象以使用STCPManager的端口分配
+        const tempSite: Site = {
+          macAddress: siteData.macAddress,
+          siteCode: siteData.siteCode,
+          siteName: siteData.siteName,
+          password: siteData.password || '',
+          tags: siteData.tags || [],
+          configs: []
+        }
+
+        // 生成代理配置 - 使用actions获取当前站点状态来正确分配端口
         const configs = [
           {
             name: `E-${siteData.macAddress}-22`,
@@ -201,7 +255,7 @@ export function BatchImport({ showBatchImport, setShowBatchImport }: BatchImport
             server_name: `E-${siteData.macAddress}-22`,
             sk: siteData.macAddress,
             bind_addr: '0.0.0.0',
-            bind_port: portCounter++
+            bind_port: getAllocatedPort(sites)
           },
           {
             name: `E-${siteData.macAddress}-3306`,
@@ -210,7 +264,7 @@ export function BatchImport({ showBatchImport, setShowBatchImport }: BatchImport
             server_name: `E-${siteData.macAddress}-3306`,
             sk: siteData.macAddress,
             bind_addr: '0.0.0.0',
-            bind_port: portCounter++
+            bind_port: getAllocatedPort(sites)
           },
           {
             name: `E-${siteData.macAddress}-5000`,
@@ -219,16 +273,12 @@ export function BatchImport({ showBatchImport, setShowBatchImport }: BatchImport
             server_name: `E-${siteData.macAddress}-5000`,
             sk: siteData.macAddress,
             bind_addr: '0.0.0.0',
-            bind_port: portCounter++
+            bind_port: getAllocatedPort(sites)
           }
         ]
 
         const site: Site = {
-          macAddress: siteData.macAddress,
-          siteCode: siteData.siteCode,
-          siteName: siteData.siteName,
-          password: siteData.password || '',
-          tags: siteData.tags || [],
+          ...tempSite,
           configs
         }
 
@@ -239,6 +289,34 @@ export function BatchImport({ showBatchImport, setShowBatchImport }: BatchImport
     }
 
     return sites
+  }
+
+  // 获取下一个可用端口的辅助函数
+  const getAllocatedPort = (currentSites: Site[]): number => {
+    const usedPorts = new Set<number>()
+    
+    // 收集现有站点的已使用端口
+    const existingSites = state.sites || []
+    existingSites.forEach(site => {
+      site.configs.forEach(config => {
+        usedPorts.add(config.bind_port)
+      })
+    })
+    
+    // 收集当前批次中已分配的端口
+    currentSites.forEach(site => {
+      site.configs.forEach(config => {
+        usedPorts.add(config.bind_port)
+      })
+    })
+
+    // 从18000开始分配新端口
+    let port = 18000
+    while (usedPorts.has(port)) {
+      port++
+    }
+
+    return port
   }
 
   const handleImport = async () => {
@@ -340,6 +418,7 @@ export function BatchImport({ showBatchImport, setShowBatchImport }: BatchImport
     setColumnMappings({})
     setDuplicateSites([])
     setPendingSites([])
+    setUnifiedTags('')
     setShowBatchImport(false)
   }
 
@@ -355,15 +434,15 @@ export function BatchImport({ showBatchImport, setShowBatchImport }: BatchImport
   return (
     <>
       <Dialog open={showBatchImport} onOpenChange={setShowBatchImport}>
-        <DialogContent className="max-w-[90vw] w-[90%] max-h-[90vh]">
-          <DialogHeader>
+        <DialogContent className="max-w-[90vw] w-[90%] max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <Upload className="h-5 w-5" />
               批量导入站点
             </DialogTitle>
           </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="flex-1 overflow-y-auto space-y-4 pr-2">
           {/* 数据输入区域 */}
           <div className="space-y-2">
             <div className="flex justify-between items-center">
@@ -383,10 +462,27 @@ export function BatchImport({ showBatchImport, setShowBatchImport }: BatchImport
               id="importData"
               value={batchImportText}
               onChange={(e) => setBatchImportText(e.target.value)}
-              placeholder="请粘贴数据，每行一个站点，支持 竖线 制表符 空格 分隔，标签内用逗号分隔..."
+              placeholder="请粘贴数据，每行一个站点，支持 空格 制表符 竖线 分隔，空列可留空..."
               rows={6}
               className="apple-input resize-none font-mono text-sm"
             />
+          </div>
+
+          {/* 统一标签输入 */}
+          <div className="space-y-2">
+            <Label htmlFor="unifiedTags" className="text-sm font-semibold">
+              统一标签 (可选)
+            </Label>
+            <Input
+              id="unifiedTags"
+              value={unifiedTags}
+              onChange={(e) => setUnifiedTags(e.target.value)}
+              placeholder="为所有导入的站点添加统一标签，多个标签用逗号分隔..."
+              className="apple-input text-sm"
+            />
+            <p className="text-xs text-muted-foreground">
+              这些标签将会添加到所有导入的站点中，如：批量导入,2024年度,测试环境
+            </p>
           </div>
 
           {/* 列映射表格 */}
@@ -449,24 +545,24 @@ export function BatchImport({ showBatchImport, setShowBatchImport }: BatchImport
               </AlertDescription>
             </Alert>
           )}
+        </div>
 
-          {/* 操作按钮 */}
-          <div className="flex gap-3 pt-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowBatchImport(false)}
-              className="flex-1"
-            >
-              取消
-            </Button>
-            <Button 
-              onClick={handleImport}
-              disabled={!parsedData.length || validationErrors.length > 0 || importing}
-              className="flex-1"
-            >
-              {importing ? '导入中...' : `导入 ${parsedData.length} 个站点`}
-            </Button>
-          </div>
+        {/* 操作按钮 - 固定在底部 */}
+        <div className="flex-shrink-0 flex gap-3 pt-4 border-t border-border">
+          <Button
+            variant="outline"
+            onClick={() => setShowBatchImport(false)}
+            className="flex-1"
+          >
+            取消
+          </Button>
+          <Button 
+            onClick={handleImport}
+            disabled={!parsedData.length || validationErrors.length > 0 || importing}
+            className="flex-1"
+          >
+            {importing ? '导入中...' : `导入 ${parsedData.length} 个站点`}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

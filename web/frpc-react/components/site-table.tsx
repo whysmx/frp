@@ -38,8 +38,8 @@ export function SiteTable({
         <Table>
           <TableHeader className="sticky top-0 z-10">
             <TableRow className="border-b border-border/50 bg-secondary/50 backdrop-blur-sm">
+              <TableHead className="text-secondary-foreground font-medium py-8 px-10 w-80">站点名称</TableHead>
               <TableHead className="text-secondary-foreground font-medium py-8 px-10 w-60">站点编号</TableHead>
-              <TableHead className="text-secondary-foreground font-medium py-8 px-10 w-60">站点名称</TableHead>
               {isEditMode && <TableHead className="text-secondary-foreground font-medium py-8 px-10">MAC地址</TableHead>}
               <TableHead className="text-secondary-foreground font-medium py-8 px-10">密码</TableHead>
               <TableHead className="text-secondary-foreground font-medium py-8 px-10 w-80">标签</TableHead>
@@ -57,25 +57,25 @@ export function SiteTable({
                 <TableCell className="py-8 px-10">
                   {isEditMode ? (
                     <Input
-                      value={site.siteCode}
-                      onChange={(e) => onSiteFieldChange(site.macAddress, "siteCode", e.target.value)}
-                      className="apple-input h-11 font-mono text-sm"
+                      value={site.siteName || ''}
+                      onChange={(e) => onSiteFieldChange(site.macAddress, "siteName", e.target.value)}
+                      className="apple-input h-11 font-medium text-sm"
                     />
                   ) : (
-                    <span className="font-mono text-sm font-medium" style={{color: 'rgb(28 28 30)'}}>
-                      {site.siteCode}
-                    </span>
+                    <span className="font-medium" style={{color: 'rgb(28 28 30)'}}>{site.siteName || ''}</span>
                   )}
                 </TableCell>
                 <TableCell className="py-8 px-10">
                   {isEditMode ? (
                     <Input
-                      value={site.siteName}
-                      onChange={(e) => onSiteFieldChange(site.macAddress, "siteName", e.target.value)}
-                      className="apple-input h-11 font-medium text-sm"
+                      value={site.siteCode || ''}
+                      onChange={(e) => onSiteFieldChange(site.macAddress, "siteCode", e.target.value)}
+                      className="apple-input h-11 font-mono text-sm"
                     />
                   ) : (
-                    <span className="font-medium" style={{color: 'rgb(28 28 30)'}}>{site.siteName}</span>
+                    <span className="font-mono text-sm font-medium" style={{color: 'rgb(28 28 30)'}}>
+                      {site.siteCode || ''}
+                    </span>
                   )}
                 </TableCell>
                 {isEditMode && (
@@ -89,14 +89,14 @@ export function SiteTable({
                   {isEditMode ? (
                     <Input
                       type="text"
-                      value={site.password}
+                      value={site.password || ''}
                       onChange={(e) => onSiteFieldChange(site.macAddress, "password", e.target.value)}
                       className="apple-input h-11 text-sm"
                       placeholder="输入密码"
                     />
                   ) : (
                     <span className="text-sm font-mono font-normal" style={{color: 'rgb(28 28 30)'}}>
-                      {site.password || "未设置"}
+                      {site.password || ""}
                     </span>
                   )}
                 </TableCell>

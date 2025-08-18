@@ -78,32 +78,31 @@ export default function FrpcSiteManagement() {
     if (proxy5000) {
       const currentHost = window.location.hostname
       const baseUrl = `http://${currentHost}:${proxy5000.bind_port}`
-      const urlWithParams = `${baseUrl}?site=${encodeURIComponent(site.siteCode)}.${encodeURIComponent(site.siteName)}`
+      const urlWithParams = `${baseUrl}?site=${encodeURIComponent(site.siteCode || '')}.${encodeURIComponent(site.siteName || '')}`
       window.open(urlWithParams, "_blank")
     }
   }
 
   const handleSSHAccess = async (site: Site) => {
-    // 查找服务名后缀是 -22 的端口和 -3306 的端口
+    // 查找服务名后缀是 -22 的SSH端口
     const proxy22 = site.configs.find((p) => p.name.endsWith("-22"))
-    const proxy3306 = site.configs.find((p) => p.name.endsWith("-3306"))
     
-    if (proxy22 && proxy3306) {
-      // 获取当前浏览器访问的主机IP（与访问站点按钮相同的方式）
+    if (proxy22) {
+      // 获取当前浏览器访问的主机IP
       const currentHost = window.location.hostname
-      const sessionName = `${site.siteCode}.${site.siteName}`
+      const sessionName = `${site.siteCode || ''}.${site.siteName || ''}`
       
-      // 生成XShell命令 - 使用主机IP和3306端口的映射端口
-      const xshellCommand = `xshell -newtab "${sessionName}" ssh forlinx@${currentHost}:${proxy3306.bind_port}`
+      // 生成标准SSH命令 - 使用SSH的22端口映射
+      const sshCommand = `ssh forlinx@${currentHost}:${proxy22.bind_port}`
       
-      // 复制XShell命令到剪贴板 - 兼容远程访问
-      const copySuccess = await copyToClipboard(xshellCommand)
+      // 复制SSH命令到剪贴板 - 兼容远程访问
+      const copySuccess = await copyToClipboard(sshCommand)
       
       // 简单的自动消失提示
       const toast = document.createElement('div')
       toast.textContent = copySuccess 
-        ? `SSH命令已复制 (标签: ${sessionName})`
-        : `复制失败，请手动复制：${xshellCommand}`
+        ? 'SSH命令已复制'
+        : `复制失败，请手动复制：${sshCommand}`
       toast.style.cssText = `
         position: fixed; top: 20px; right: 20px; z-index: 9999;
         background: rgba(0, 0, 0, 0.8); color: white; padding: 12px 16px;
@@ -115,11 +114,8 @@ export default function FrpcSiteManagement() {
     } else {
       // 错误提示
       const toast = document.createElement('div')
-      let errorMsg = '配置不完整：'
-      if (!proxy22) errorMsg += '未找到SSH端口配置（-22）'
-      if (!proxy3306) errorMsg += (!proxy22 ? '，' : '') + '未找到MySQL端口配置（-3306）'
+      toast.textContent = '未找到SSH端口配置（后缀-22）'
       
-      toast.textContent = errorMsg
       toast.style.cssText = `
         position: fixed; top: 20px; right: 20px; z-index: 9999;
         background: rgba(220, 38, 38, 0.9); color: white; padding: 12px 16px;
@@ -137,7 +133,7 @@ export default function FrpcSiteManagement() {
     if (proxy3306) {
       // 获取当前浏览器访问的主机IP
       const currentHost = window.location.hostname
-      const sessionName = `${site.siteCode}.${site.siteName}`
+      const sessionName = `${site.siteCode || ''}.${site.siteName || ''}`
       
       // 生成DBeaver可直接使用的MySQL连接URL
       const connectionInfo = `mysql://root:Sun%40123456@${currentHost}:${proxy3306.bind_port}/`
@@ -148,7 +144,7 @@ export default function FrpcSiteManagement() {
       // 简单的自动消失提示
       const toast = document.createElement('div')
       toast.textContent = copySuccess 
-        ? `MySQL连接信息已复制 (${sessionName})`
+        ? 'MySQL连接信息已复制'
         : `复制失败，请手动复制：${connectionInfo}`
       toast.style.cssText = `
         position: fixed; top: 20px; right: 20px; z-index: 9999;

@@ -78,7 +78,7 @@ function siteReducer(state: SiteState, action: SiteAction): SiteState {
       return { ...state, lastSyncTime: action.payload }
     
     case 'ADD_SITE':
-      return { ...state, sites: [...state.sites, action.payload] }
+      return { ...state, sites: [action.payload, ...state.sites] }
     
     case 'UPDATE_SITE': {
       const updatedSites = state.sites.map(site =>
@@ -137,7 +137,7 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       const term = searchTerm.toLowerCase()
       filtered = filtered.filter(site =>
         site.siteCode.toLowerCase().includes(term) ||
-        site.siteName.toLowerCase().includes(term) ||
+        (site.siteName || '').toLowerCase().includes(term) ||
         site.macAddress.toLowerCase().includes(term) ||
         site.tags.some(tag => tag.toLowerCase().includes(term))
       )
@@ -175,7 +175,9 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       
       try {
         const sites = await stcpManager.loadData()
-        dispatch({ type: 'SET_SITES', payload: sites })
+        // 倒序显示，最新添加的在前面
+        const reversedSites = [...sites].reverse()
+        dispatch({ type: 'SET_SITES', payload: reversedSites })
         dispatch({ type: 'SET_LAST_SYNC_TIME', payload: stcpManager.getLastSyncTime() })
         toast.success(`成功加载 ${sites.length} 个站点`)
       } catch (error) {
@@ -259,12 +261,16 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       try {
         const result = stcpManager.importSites(sites)
         
-        // 更新状态中的站点列表
+        // 更新状态中的站点列表，保持倒序
         const updatedSites = stcpManager.getSites()
-        dispatch({ type: 'SET_SITES', payload: updatedSites })
+        const reversedSites = [...updatedSites].reverse()
+        dispatch({ type: 'SET_SITES', payload: reversedSites })
         
+        // 自动保存到配置文件
         if (result.success > 0) {
-          toast.success(`成功导入 ${result.success} 个站点`)
+          await stcpManager.saveData()
+          dispatch({ type: 'SET_LAST_SYNC_TIME', payload: new Date() })
+          toast.success(`成功导入 ${result.success} 个站点并已保存`)
         }
         
         if (result.errors.length > 0) {
@@ -283,9 +289,16 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       try {
         const result = stcpManager.importSitesWithDuplicateCheck(sites)
         
-        // 更新状态中的站点列表
+        // 更新状态中的站点列表，保持倒序
         const updatedSites = stcpManager.getSites()
-        dispatch({ type: 'SET_SITES', payload: updatedSites })
+        const reversedSites = [...updatedSites].reverse()
+        dispatch({ type: 'SET_SITES', payload: reversedSites })
+        
+        // 自动保存到配置文件（仅在有新增数据时）
+        if (result.success > 0) {
+          await stcpManager.saveData()
+          dispatch({ type: 'SET_LAST_SYNC_TIME', payload: new Date() })
+        }
         
         return result
       } catch (error) {
@@ -299,9 +312,16 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       try {
         const result = stcpManager.importSitesWithOverwrite(sites, overwriteDuplicates)
         
-        // 更新状态中的站点列表
+        // 更新状态中的站点列表，保持倒序
         const updatedSites = stcpManager.getSites()
-        dispatch({ type: 'SET_SITES', payload: updatedSites })
+        const reversedSites = [...updatedSites].reverse()
+        dispatch({ type: 'SET_SITES', payload: reversedSites })
+        
+        // 自动保存到配置文件（有数据变更时）
+        if (result.success > 0 || result.overwritten > 0) {
+          await stcpManager.saveData()
+          dispatch({ type: 'SET_LAST_SYNC_TIME', payload: new Date() })
+        }
         
         let message = ''
         if (result.success > 0) {
@@ -312,7 +332,7 @@ export function SiteProvider({ children }: { children: ReactNode }) {
         }
         
         if (message) {
-          toast.success(message)
+          toast.success(`${message}并已保存`)
         }
         
         if (result.errors.length > 0) {
